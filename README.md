@@ -4,7 +4,7 @@
 ```
 <?xml version="1.0" encoding="UTF-8" ?>
 <config>
-    <address>0.0.0.0:6379</address>
+    <address>0.0.0.0:6380</address>
     <db>0</db>
     <dict>/data/dict</dict>
 </config>
@@ -12,10 +12,25 @@
 * 其中db为dict定义目录下的一个子目录，所有字典存在该子目录下,当使用select db时可切换分词字典，使用refresh db时可以重新加载分词字典
 
 ### usage
-```
-make linux
 
-./bin/goRedisJieba_linux --config=config.xml
+1. 先安装配置好go环境
+
+```
+export GO111MODULE=on //开启go Module
+export GOPROXY=https://goproxy.cn //设置go proxy
+```
+
+2. 然后安装相关扩展,如果xqb没在GOROOT下，拷贝过去即可/或者更改package的路径
+```
+go mod init goRedisJieba
+go mod tidy
+```
+
+3. 然后go build编译redis
+
+```
+make linux //即GOOS=linux GOARCH=amd64 go build -o ./bin/goRedisJieba_linux ./src
+./bin/goRedisJieba_linux --config=config.xml //运行该实例,可nohup &放到后台
 ```
 
 ### download
@@ -102,14 +117,10 @@ OK
 ```
 <?php
 
-$redis_handle = new Redis();
-$redis_handle->connect('127.0.0.1', 6379, 10); //端口需要与config.xml配置保持一致
-$redis_handle->select(0);
+$redis = new Redis();
+$redis->connect('127.0.0.1', 6380, 10); //端口需要与config.xml配置保持一致
+$redis->select(0);
 
-$result = $redis_handle->rawCommand('cutforsearch', '我来到北京清华大学', 1);
+$result = $redis->rawCommand('cutforsearch', '我来到北京清华大学', 1);
 print_r($result);
 ```
-
-* dependent on https://github.com/yanyiwu/gojieba 
-
-更多疑问请+qq群 233415606
